@@ -1,0 +1,10 @@
+`timescale 1ns / 1ps
+
+module PCplus4(
+input [31:0] fromPC,    
+output [31:0] nexttoPC   
+    );
+    
+assign nexttoPC=4+fromPC;
+ 
+endmodule
