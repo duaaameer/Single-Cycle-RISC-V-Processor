@@ -11,3 +11,6 @@ Th repository contains a Verilog implementation of a single-cycle RISC-V process
 * Basic memory interface for instruction and data access
 
 * Simple control unit and ALU design
+
+# Note
+Copy all the modules including the Top Module in your IDE to see the functionality by simulation. 
