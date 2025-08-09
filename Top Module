@@ -1,0 +1,43 @@
+`timescale 1ns / 1ps
+
+
+module TopModule(
+input clk,
+input reset
+    );
+    
+wire [31:0] PC_top, instruction_top, Rd1_top, Rd2_top, ImmExt_top, Mux1_top, Sum_out_top, nexttoPC_top,PCin_top, address_top, 
+Memdata_top, WriteBack_top;
+wire Regwrite_top, ALUSrc_top, zero_top, branch_top, sel2_top, MemtoReg_top, MemWrite_top, MemRead_top;
+wire [1:0] ALUOp_top;
+wire [3:0] Control_top;
+
+Program_Counter PC(.clk(clk), .reset(reset),.PC_in(PCin_top), .PC_out(PC_top) );
+
+PCplus4 PCP(.fromPC(PC_top),.nexttoPC(nexttoPC_top));
+
+Instruction_Mem IM(.clk(clk), .reset(reset), .read_address(PC_top),.instruction_out(instruction_top) );
+    
+Register_File RF(.clk(clk), .reset(reset), .RegWrite(Regwrite_top),.Rs1(instruction_top[19:15]), .Rs2(instruction_top[24:20]), .Rd(instruction_top[11:7]), .Write_data(WriteBack_top),.read_data1(Rd1_top), .read_data2(Rd2_top));
+
+ImmGen IG (.Opcode(instruction_top[6:0]),.instruction(instruction_top),.ImmExt(ImmExt_top));
+
+Control_Unit CU(.instruction(instruction_top[6:0]),.branch(branch_top), .MemRead(MemRead_top), .MemtoReg(MemtoReg_top),.MemWrite(MemWrite_top), .ALUSrc(ALUSrc_top), .RegWrite(Regwrite_top),.ALUOp(ALUOp_top) );
+
+
+ALU_Control ALUCtrl (.fun7(instruction_top[30]),.fun3(instruction_top[14:12]),.ALUOp(ALUOp_top),.Control_out(Control_top));
+
+ALU_unit ALU(.A(Rd1_top), .B(Mux1_top),.Control_in(Control_top),.zero(zero_top),. ALU_Result(address_top));
+
+Mux1 M1(.sel1(ALUSrc_top), .A1(Rd2_top), .B1(ImmExt_top), .Mux1_out(Mux1_top));
+
+Adder A(.in_1(PC_top), .in_2(ImmExt_top),. Sum_out(Sum_out_top));
+  
+AND_Logic ALog(.branch(branch_top),. zero(zero_top),. and_out(sel2_top)); 
+
+Mux2 M2(.sel2(sel2_top),. A2(nexttoPC_top), .B2(Sum_out_top), .Mux2_out(PCin_top));
+
+Data_Memory DM(.clk(clk),.reset(reset), .MemWrite(MemWrite_top),. MemRead(MemRead_top),.read_address(address_top),. Write_data(Rd2_top),. MemData_out(Memdata_top) );
+
+Mux3 M3(.sel3(MemtoReg_top), .A3(address_top), .B3(Memdata_top), .Mux3_out(WriteBack_top));
+endmodule
