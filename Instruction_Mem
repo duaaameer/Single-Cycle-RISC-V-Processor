@@ -1,0 +1,46 @@
+`timescale 1ns / 1ps
+
+
+module Instruction_Mem(
+input clk, 
+input reset, 
+input [31:0] read_address,
+output reg [31:0] instruction_out 
+  );
+   reg [31:0] IMem[63:0];
+    integer k;
+     initial begin
+                 //R-Type
+                 IMem[0]=32'b00000000000000000000000000000000; 
+                 IMem[4]=32'b0000000_11001_10000_000_01101_0110011; 
+                 IMem[8]=32'b0100000_00011_01000_000_00101_0110011;
+                 IMem[12]=32'b000000_00011_00010_111_00001_0110011;
+                 IMem[16]=32'b000000_00101_00011_110_00100_0110011;      
+                 //I-Type
+                 IMem[20]=32'b000000000011_00101_000_10110_0010011; 
+                 IMem[24]=32'b000000000001_01000_110_01001_0010011;
+                 //L-Type
+                 IMem[20]=32'b000000001111_00101_010_01000_0000011; 
+                 IMem[32]=32'b000000000011_00011_010_01001_0010011;  
+                 //S-Type
+                 IMem[36]=32'b0000000_01111_00101_010_01100_0100011; 
+                 IMem[40]=32'b0000000_01110_00110_010_01010_0100011;
+                 //SB-type
+                 IMem[44]=32'h00948663;
+                 end
+                 
+   always @(posedge clk or posedge reset) begin
+           if (reset) begin
+               for (k = 0; k < 64; k = k + 1) begin                  
+                   IMem[k] <= 32'b0;
+               end
+        
+           end
+  else begin
+instruction_out <= IMem[read_address];
+end
+   end
+     
+  
+ 
+endmodule
